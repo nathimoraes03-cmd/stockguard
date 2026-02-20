@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>StockGuard - Controle de Estoque</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    padding: 20px;
+}
+.container {
+    max-width: 600px;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.1);
+}
+h1 {
+    color: #1f4fd8;
+}
+.status {
+    font-size: 18px;
+    margin: 10px 0;
+}
+.alerta {
+    color: red;
+    font-weight: bold;
+    display: none;
+}
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+.btn-consumo {
+    background: #1f4fd8;
+    color: white;
+}
+.btn-pedido {
+    background: green;
+    color: white;
+    display: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>📦 StockGuard</h1>
+
+    <p><strong>Produto:</strong> Disjuntor Industrial X</p>
+    <p><strong>Empresa:</strong> Schneider Electric</p>
+
+    <p class="status">
+        Estoque atual: <span id="estoque">100</span> unidades
+    </p>
+
+    <p class="alerta" id="alerta">
+        ⚠️ ALERTA: Estoque crítico! Ação de compra necessária.
+    </p>
+
+    <button class="btn-consumo" onclick="consumir()">
+        Simular consumo (-10)
+    </button>
+
+    <button class="btn-pedido" id="pedido" onclick="pedidoCompra()">
+        Gerar pedido de compra
+    </button>
+</div>
+
+<script>
+let estoque = 100;
+const limite = 20;
+
+function consumir() {
+    if (estoque > 0) {
+        estoque -= 10;
+        document.getElementById("estoque").innerText = estoque;
+    }
+
+    if (estoque <= limite) {
+        document.getElementById("alerta").style.display = "block";
+        document.getElementById("pedido").style.display = "inline-block";
+    }
+
+    if (estoque <= 0) {
+        alert("Estoque zerado! Furo de estoque ocorreu.");
+    }
+}
+
+function pedidoCompra() {
+    estoque += 100;
+    document.getElementById("estoque").innerText = estoque;
+    document.getElementById("alerta").style.display = "none";
+    document.getElementById("pedido").style.display = "none";
+    alert("✅ Pedido de compra gerado automaticamente!");
+}
+</script>
+
+</body>
+</html>
