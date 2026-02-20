@@ -2,125 +2,176 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>StockGuard | Controle Inteligente de Estoque</title>
+<title>StockGuard - Simulação de Estoque</title>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 body {
     font-family: Arial, sans-serif;
     background: #f4f6f8;
-    margin: 0;
     padding: 20px;
 }
-header {
-    background: #003366;
+
+h1 {
+    text-align: center;
+    color: #1f4fd8;
+}
+
+.tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.tabs button {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    background: #ddd;
+    margin: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.tabs button.active {
+    background: #1f4fd8;
     color: white;
-    padding: 20px;
-    border-radius: 10px;
 }
-section {
+
+.container {
+    max-width: 900px;
+    margin: auto;
     background: white;
-    margin-top: 20px;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
-h2 {
-    color: #003366;
-}
-.cards {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-.card {
-    flex: 1;
-    min-width: 200px;
-    background: #eef2f5;
+
+.alert {
     padding: 15px;
-    border-radius: 10px;
-    text-align: center;
+    margin-top: 15px;
+    border-radius: 5px;
+    display: none;
+    font-weight: bold;
 }
-footer {
-    margin-top: 30px;
-    text-align: center;
-    color: #666;
+
+.alert.danger {
+    background: #ffdddd;
+    color: #a10000;
+}
+
+.controls {
+    margin-top: 15px;
+}
+
+.controls button {
+    padding: 10px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.add {
+    background: #4CAF50;
+    color: white;
+}
+
+.remove {
+    background: #f44336;
+    color: white;
 }
 </style>
 </head>
 
 <body>
 
-<header>
-    <h1>StockGuard</h1>
-    <p>Sistema Inteligente de Prevenção de Furo de Estoque</p>
-</header>
+<h1>📦 StockGuard – Simulação de Prevenção de Furo de Estoque</h1>
 
-<section>
-    <h2>Visão Geral</h2>
-    <p>
-        O StockGuard analisa vendas, previsão de demanda e níveis críticos de estoque,
-        evitando perdas financeiras e ruptura de produtos.
-    </p>
+<div class="tabs">
+    <button class="active" onclick="changeCompany('schneider')">Schneider Electric</button>
+    <button onclick="changeCompany('mercado')">Supermercado</button>
+    <button onclick="changeCompany('magazine')">Magazine Luiza</button>
+</div>
 
-    <div class="cards">
-        <div class="card">
-            <h3>🔍 Monitoramento</h3>
-            <p>Estoque em tempo real</p>
-        </div>
-        <div class="card">
-            <h3>📊 Previsão</h3>
-            <p>Demanda baseada em histórico</p>
-        </div>
-        <div class="card">
-            <h3>⚠️ Alertas</h3>
-            <p>Reposição automática</p>
-        </div>
+<div class="container">
+    <h2 id="companyName"></h2>
+    <p><strong>Estoque atual:</strong> <span id="stockValue"></span> unidades</p>
+
+    <div class="controls">
+        <button class="add" onclick="addStock()">+ Entrada de Produtos</button>
+        <button class="remove" onclick="removeStock()">- Saída de Produtos</button>
     </div>
-</section>
 
-<section>
-    <h2>Comparativo de Furo de Estoque (%)</h2>
-    <canvas id="graficoFuro"></canvas>
-</section>
+    <div id="alert" class="alert danger">
+        ⚠ ALERTA: Estoque crítico! Pedido de compra deve ser realizado.
+    </div>
 
-<section>
-    <h2>Simulação por Empresa</h2>
-
-    <p><strong>Schneider Electric:</strong> Redução de falhas em componentes industriais críticos.</p>
-    <p><strong>Mercado Livre:</strong> Diminuição de cancelamentos por falta de produtos.</p>
-    <p><strong>Magazine Luiza:</strong> Maior disponibilidade em datas promocionais.</p>
-</section>
-
-<footer>
-    <p>Projeto educacional • Simulação de sistema real • 2026</p>
-</footer>
+    <canvas id="chart" style="margin-top:30px;"></canvas>
+</div>
 
 <script>
-const ctx = document.getElementById('graficoFuro');
+let companies = {
+    schneider: { name: "Schneider Electric (Indústria)", stock: 50 },
+    mercado: { name: "Supermercado (Varejo)", stock: 60 },
+    magazine: { name: "Magazine Luiza (E-commerce)", stock: 40 }
+};
 
-new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: ['Schneider', 'Mercado Livre', 'Magazine Luiza'],
-        datasets: [{
-            label: 'Antes do StockGuard',
-            data: [18, 22, 20],
-        },
-        {
-            label: 'Depois do StockGuard',
-            data: [6, 8, 7],
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'top',
-            }
-        }
+let currentCompany = "schneider";
+let chart;
+
+function updateUI() {
+    document.getElementById("companyName").innerText = companies[currentCompany].name;
+    document.getElementById("stockValue").innerText = companies[currentCompany].stock;
+
+    let alertBox = document.getElementById("alert");
+    if (companies[currentCompany].stock <= 20) {
+        alertBox.style.display = "block";
+    } else {
+        alertBox.style.display = "none";
     }
-});
+
+    updateChart();
+}
+
+function addStock() {
+    companies[currentCompany].stock += 10;
+    updateUI();
+}
+
+function removeStock() {
+    if (companies[currentCompany].stock > 0) {
+        companies[currentCompany].stock -= 10;
+    }
+    updateUI();
+}
+
+function changeCompany(company) {
+    currentCompany = company;
+    document.querySelectorAll(".tabs button").forEach(btn => btn.classList.remove("active"));
+    event.target.classList.add("active");
+    updateUI();
+}
+
+function updateChart() {
+    if (chart) chart.destroy();
+
+    const ctx = document.getElementById('chart');
+    chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Estoque Atual'],
+            datasets: [{
+                label: companies[currentCompany].name,
+                data: [companies[currentCompany].stock],
+            }]
+        }
+    });
+}
+
+updateUI();
 </script>
 
 </body>
