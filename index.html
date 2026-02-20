@@ -2,104 +2,125 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>StockGuard - Controle de Estoque</title>
+<title>StockGuard | Controle Inteligente de Estoque</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 body {
     font-family: Arial, sans-serif;
     background: #f4f6f8;
+    margin: 0;
     padding: 20px;
 }
-.container {
-    max-width: 600px;
-    background: #ffffff;
+header {
+    background: #003366;
+    color: white;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 12px rgba(0,0,0,0.1);
 }
-h1 {
-    color: #1f4fd8;
+section {
+    background: white;
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
-.status {
-    font-size: 18px;
-    margin: 10px 0;
+h2 {
+    color: #003366;
 }
-.alerta {
-    color: red;
-    font-weight: bold;
-    display: none;
+.cards {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
 }
-button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-top: 10px;
+.card {
+    flex: 1;
+    min-width: 200px;
+    background: #eef2f5;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
 }
-.btn-consumo {
-    background: #1f4fd8;
-    color: white;
-}
-.btn-pedido {
-    background: green;
-    color: white;
-    display: none;
+footer {
+    margin-top: 30px;
+    text-align: center;
+    color: #666;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-    <h1>📦 StockGuard</h1>
+<header>
+    <h1>StockGuard</h1>
+    <p>Sistema Inteligente de Prevenção de Furo de Estoque</p>
+</header>
 
-    <p><strong>Produto:</strong> Disjuntor Industrial X</p>
-    <p><strong>Empresa:</strong> Schneider Electric</p>
-
-    <p class="status">
-        Estoque atual: <span id="estoque">100</span> unidades
+<section>
+    <h2>Visão Geral</h2>
+    <p>
+        O StockGuard analisa vendas, previsão de demanda e níveis críticos de estoque,
+        evitando perdas financeiras e ruptura de produtos.
     </p>
 
-    <p class="alerta" id="alerta">
-        ⚠️ ALERTA: Estoque crítico! Ação de compra necessária.
-    </p>
+    <div class="cards">
+        <div class="card">
+            <h3>🔍 Monitoramento</h3>
+            <p>Estoque em tempo real</p>
+        </div>
+        <div class="card">
+            <h3>📊 Previsão</h3>
+            <p>Demanda baseada em histórico</p>
+        </div>
+        <div class="card">
+            <h3>⚠️ Alertas</h3>
+            <p>Reposição automática</p>
+        </div>
+    </div>
+</section>
 
-    <button class="btn-consumo" onclick="consumir()">
-        Simular consumo (-10)
-    </button>
+<section>
+    <h2>Comparativo de Furo de Estoque (%)</h2>
+    <canvas id="graficoFuro"></canvas>
+</section>
 
-    <button class="btn-pedido" id="pedido" onclick="pedidoCompra()">
-        Gerar pedido de compra
-    </button>
-</div>
+<section>
+    <h2>Simulação por Empresa</h2>
+
+    <p><strong>Schneider Electric:</strong> Redução de falhas em componentes industriais críticos.</p>
+    <p><strong>Mercado Livre:</strong> Diminuição de cancelamentos por falta de produtos.</p>
+    <p><strong>Magazine Luiza:</strong> Maior disponibilidade em datas promocionais.</p>
+</section>
+
+<footer>
+    <p>Projeto educacional • Simulação de sistema real • 2026</p>
+</footer>
 
 <script>
-let estoque = 100;
-const limite = 20;
+const ctx = document.getElementById('graficoFuro');
 
-function consumir() {
-    if (estoque > 0) {
-        estoque -= 10;
-        document.getElementById("estoque").innerText = estoque;
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Schneider', 'Mercado Livre', 'Magazine Luiza'],
+        datasets: [{
+            label: 'Antes do StockGuard',
+            data: [18, 22, 20],
+        },
+        {
+            label: 'Depois do StockGuard',
+            data: [6, 8, 7],
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        }
     }
-
-    if (estoque <= limite) {
-        document.getElementById("alerta").style.display = "block";
-        document.getElementById("pedido").style.display = "inline-block";
-    }
-
-    if (estoque <= 0) {
-        alert("Estoque zerado! Furo de estoque ocorreu.");
-    }
-}
-
-function pedidoCompra() {
-    estoque += 100;
-    document.getElementById("estoque").innerText = estoque;
-    document.getElementById("alerta").style.display = "none";
-    document.getElementById("pedido").style.display = "none";
-    alert("✅ Pedido de compra gerado automaticamente!");
-}
+});
 </script>
 
 </body>
